@@ -30,7 +30,7 @@ export default {
         return{
             loginForm:{
                 username:'admin',
-                password:'123'
+                password:'123456'
             },
             loginFormRules:{
                 username:[
@@ -39,7 +39,7 @@ export default {
                 ],
                 password:[
                     {required: true, message: '请输入密码', trigger: 'blur'},
-                    { min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur' }
+                    { min: 5, max: 15, message: '长度在 5 到 15 个字符', trigger: 'blur' }
                 ]
             }
         }
