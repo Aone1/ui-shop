@@ -68,11 +68,11 @@ export default {
       this.$router.push("/login");
     },
     getMenuList(){
-        this.requestQuickGet('/manager/menus').then(resp=>{
-            if(resp.data.meta.status!=200){
-                this.$message.error(resp.data.meta.msg);
-            }else{
+        this.requestQuickGet('/manager/menu/').then(resp=>{
+            if(resp.data.success){
                 this.menuList=resp.data.data;
+            }else{
+                this.$message.error("查询菜单失败");
             }
         })
     },

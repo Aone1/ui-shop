@@ -11,7 +11,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/manager':{
-        target:'http://127.0.0.1:8888/api/private/v1/',
+        target:'http://127.0.0.1:9000/',
         changeOrigin:true,
         pathRewrite:{
           '^/manager':''

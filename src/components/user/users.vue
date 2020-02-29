@@ -11,7 +11,7 @@
     <el-card>
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="请输入搜索内容" v-model="queryInfo.query" clearable @clear="getUserList">
+          <el-input placeholder="请输入搜索内容" v-model="searchMap.mgName" clearable @clear="getUserList">
             <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
           </el-input>
         </el-col>
@@ -23,31 +23,32 @@
       <!-- 用户列表区域 -->
       <el-table :data="list" border stripe>
         <el-table-column type="index"></el-table-column>
-        <el-table-column prop="username" label="姓名"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column prop="mobile" label="电话"></el-table-column>
-        <el-table-column prop="role_name" label="角色"></el-table-column>
-        <el-table-column prop="role_name" label="状态">
+        <el-table-column prop="mgName" label="姓名"></el-table-column>
+        <el-table-column prop="mgEmail" label="邮箱"></el-table-column>
+        <el-table-column prop="mgMobile" label="电话"></el-table-column>
+        <el-table-column prop="roleId" label="角色">
+            <template slot-scope="scope">
+                <el-select v-model="scope.row.roleId" disabled placeholder="请选择">
+                    <el-option
+                        v-for="item in rolesList"
+                        :key="item.roleId"
+                        :label="item.roleName"
+                        :value="item.roleId"
+                    ></el-option>
+                </el-select>
+            </template>
+        </el-table-column>
+        <el-table-column label="状态">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)"></el-switch>
+            <el-switch v-model="scope.row.mgState" @change="userStateChanged(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="190px">
           <template slot-scope="scope">
-            <el-button
-              type="primary"
-              icon="el-icon-edit"
-              size="mini"
-              @click="openEdit(scope.row.id)"
-            ></el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="del(scope.row.id)"></el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="openEdit(scope.row.mgId)"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="del(scope.row.mgId)"></el-button>
             <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button
-                type="warning"
-                icon="el-icon-setting"
-                size="mini"
-                @click="openRoleDialog(scope.row)"
-              ></el-button>
+              <el-button type="warning" icon="el-icon-setting" size="mini" @click="openRoleDialog(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -58,8 +59,8 @@
         layout="total, sizes, prev, pager, next, jumper"
         :page-sizes="[5, 10, 15, 20]"
         :total="total"
-        :current-page="this.queryInfo.pagenum"
-        :page-size="this.queryInfo.pagesize"
+        :current-page="this.params.page"
+        :page-size="this.params.size"
         @size-change="changePageSize"
         @current-change="changeCurrentPage"
       ></el-pagination>
@@ -73,17 +74,17 @@
       :close-on-click-modal="false"
     >
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
-        <el-form-item label="用户名" prop="username">
-          <el-input placeholder="用户名" v-model="addForm.username" autocomplete="off"></el-input>
+        <el-form-item label="用户名" prop="mgName">
+          <el-input placeholder="用户名" v-model="addForm.mgName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input placeholder="密码" v-model="addForm.password" show-password autocomplete="off"></el-input>
+        <el-form-item label="密码" prop="mgPwd">
+          <el-input placeholder="密码" v-model="addForm.mgPwd" show-password autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input placeholder="邮箱" v-model="addForm.email" autocomplete="off"></el-input>
+        <el-form-item label="邮箱" prop="mgEmail">
+          <el-input placeholder="邮箱" v-model="addForm.mgEmail" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input placeholder="手机" v-model="addForm.mobile" autocomplete="off"></el-input>
+        <el-form-item label="手机" prop="mgMobile">
+          <el-input placeholder="手机" v-model="addForm.mgMobile" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" style="text-align: center">
@@ -100,14 +101,14 @@
       :close-on-click-modal="false"
     >
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
-        <el-form-item label="用户名" prop="username">
-          <el-input placeholder="用户名" v-model="editForm.username" autocomplete="off" disabled></el-input>
+        <el-form-item label="用户名" prop="mgName">
+          <el-input placeholder="用户名" v-model="editForm.mgName" autocomplete="off" disabled></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input placeholder="邮箱" v-model="editForm.email" autocomplete="off"></el-input>
+        <el-form-item label="邮箱" prop="mgEmail">
+          <el-input placeholder="邮箱" v-model="editForm.mgEmail" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input placeholder="手机" v-model="editForm.mobile" autocomplete="off"></el-input>
+        <el-form-item label="手机" prop="mgMobile">
+          <el-input placeholder="手机" v-model="editForm.mgMobile" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" style="text-align: center">
@@ -124,16 +125,16 @@
       @close="setRoleDialogClosed"
     >
       <div>
-        <p>当前的用户：{{userInfo.username}}</p>
-        <p>当前的角色：{{userInfo.role_name}}</p>
+        <p>当前的用户：{{userInfo.mgName}}</p>
+        <p>当前的角色：{{userInfo.roleName}}</p>
         <p>
           分配新角色：
           <el-select v-model="selectedRoleId" placeholder="请选择">
             <el-option
               v-for="item in rolesList"
-              :key="item.id"
+              :key="item.roleId"
               :label="item.roleName"
-              :value="item.id"
+              :value="item.roleId"
             ></el-option>
           </el-select>
         </p>
@@ -170,28 +171,28 @@ export default {
     };
     return {
       list: [],
-      queryInfo: {
-        query: "",
-        pagenum: 1,
-        pagesize: 10
-      },
       total: 0,
+      searchMap:{},
+      params: {
+        page: 1,
+        size: 10
+      },
       addFormVisible: false,
       addForm: {},
       addFormRules: {
-        username: [
+        mgName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 10, message: "长度在 3 到 10 个字符", trigger: "blur" }
         ],
-        password: [
+        mgPwd: [
           { required: true, message: "请输入密码", trigger: "blur" },
           { min: 6, max: 15, message: "长度在 6 到 15 个字符", trigger: "blur" }
         ],
-        email: [
+        mgEmail: [
           { required: true, message: "请输入邮箱", trigger: "blur" },
           { validator: checkEmail, trigger: "blur" }
         ],
-        mobile: [
+        mgMobile: [
           { required: true, message: "请输入手机号", trigger: "blur" },
           { validator: checkMobile, trigger: "blur" }
         ]
@@ -199,11 +200,11 @@ export default {
       editFormVisible: false,
       editForm: {},
       editFormRules: {
-        email: [
+        mgEmail: [
           { required: true, message: "请输入邮箱", trigger: "blur" },
           { validator: checkEmail, trigger: "blur" }
         ],
-        mobile: [
+        mgMobile: [
           { required: true, message: "请输入手机号", trigger: "blur" },
           { validator: checkMobile, trigger: "blur" }
         ]
@@ -215,32 +216,35 @@ export default {
     };
   },
   created() {
-    this.getUserList();
+      this.initRoles();
+      this.getUserList();
   },
   mounted() {},
   methods: {
+    initRoles(){
+        this.requestQuickGet("/manager/role/").then(resp=>{
+            this.rolesList = resp.data;
+        });
+    },
     getUserList() {
-      this.requestQuickGet(
-        `/manager/users?query=${this.queryInfo.query}&pagenum=${this.queryInfo.pagenum}&pagesize=${this.queryInfo.pagesize}`
-      ).then(resp => {
-        this.list = resp.data.data.users;
-        this.total = resp.data.data.total;
+      this.requestPostForm(`/manager/user/findPage?page=${this.params.page}&size=${this.params.size}`,this.searchMap).then(resp=>{
+          let data=resp.data;
+          this.list=data.rows;
+          this.total=data.total;
       });
     },
     changePageSize(size) {
-      this.queryInfo.pagesize = size;
+      this.params.size = size;
       this.getUserList();
     },
     changeCurrentPage(page) {
-      this.queryInfo.pagenum = page;
+      this.params.page = page;
       this.getUserList();
     },
-    userStateChanged(userinfo) {
-      this.requestPut(
-        `/manager/users/${userinfo.id}/state/${userinfo.mg_state}`
-      ).then(resp => {
-        if (resp.data.meta.status != 200) {
-          userinfo.mg_state = !userinfo.mg_state;
+    userStateChanged(userInfo) {
+      this.requestPut('/manager/user/',userInfo).then(resp => {
+        if (!resp.data.success) {
+          userinfo.mgState = !userinfo.mgState;
           return this.$message.error("更新用户状态失败！");
         }
         this.$message.success("更新用户状态成功！");
@@ -252,8 +256,8 @@ export default {
     saveAddForm() {
       this.$refs.addFormRef.validate(valid => {
         if (valid) {
-          this.requestPostForm("/manager/users", this.addForm).then(resp => {
-            if (resp.data.meta.status != 201) {
+          this.requestPostForm("/manager/user/", this.addForm).then(resp => {
+            if (!resp.data.success) {
               return this.$message.error("添加失败！");
             } else {
               this.$message.success("添加成功！");
@@ -269,20 +273,19 @@ export default {
     },
     openEdit(id) {
       this.editFormVisible = true;
-      this.requestQuickGet(`/manager/users/${id}`).then(resp => {
-        if (resp.data.meta.status == 200) {
-          this.editForm = resp.data.data;
-        }
+      this.requestQuickGet(`/manager/user/${id}`).then(resp => {
+        this.editForm = resp.data;
       });
     },
     saveEditForm() {
       this.$refs.editFormRef.validate(valid => {
         if (valid) {
-          this.requestPut(`/manager/users/${this.editForm.id}`, {
-            email: this.editForm.email,
-            mobile: this.editForm.mobile
+          this.requestPut('/manager/user/', {
+            mgId:this.editForm.mgId,
+            mgEmail: this.editForm.mgEmail,
+            mgMobile: this.editForm.mgMobile
           }).then(resp => {
-            if (resp.data.meta.status != 200) {
+            if (!resp.data.success) {
               return this.$message.error("更新用户信息失败！");
             } else {
               this.editFormVisible = false;
@@ -296,8 +299,8 @@ export default {
     del(id) {
       this.$confirm("确认删除吗？", "提示", {})
         .then(() => {
-          this.requestDelete(`/manager/users/${id}`).then(resp => {
-            if (resp.data.meta.status != 200) {
+          this.requestDelete(`/manager/user/${id}`).then(resp => {
+            if (!resp.data.success) {
               return this.$message.error("删除用户信息失败！");
             } else {
               this.$message.success("删除用户信息成功！");
@@ -315,13 +318,11 @@ export default {
     },
     openRoleDialog(userInfo) {
       this.userInfo = userInfo;
-      this.requestQuickGet("/manager/roles").then(resp => {
-        if (resp.data.meta.status != 200) {
-          return this.$message.error("查询角色列表失败！");
-        } else {
-          this.rolesList = resp.data.data;
-        }
-      });
+      for(let i=0;i<this.rolesList.length;i++){
+          if(this.rolesList[i].roleId==this.userInfo.roleId){
+              this.userInfo.roleName=this.rolesList[i].roleName;
+          }
+      }
       this.roleDialogVisible = true;
     },
     saveRoleInfo(){
@@ -329,14 +330,17 @@ export default {
             return this.$message.error("请选择要分配的角色！");
         }
 
-        this.requestPut(`/manager/users/${this.userInfo.id}/role`,{rid:this.selectedRoleId}).then(resp=>{
-            if(resp.data.meta.status!=200){
+        this.requestPut('/manager/user/',{
+            mgId:this.userInfo.mgId,
+            roleId:this.selectedRoleId
+        }).then(resp=>{
+            if(!resp.data.success){
                 return this.$message.error("更新角色失败！");
             }
             this.$message.success("更新角色成功！");
             this.getUserList();
             this.roleDialogVisible=false;
-        })
+        });
     }
   }
 };

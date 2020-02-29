@@ -6,11 +6,11 @@ axios.defaults.timeout = 10000
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 
 //axios请求拦截
-axios.interceptors.request.use(config=>{
-    //为请求头添加对象，添加token验证的Authorization字段
-    config.headers.Authorization=window.sessionStorage.getItem('token');
-    return config;
-})
+// axios.interceptors.request.use(config=>{
+//     //为请求头添加对象，添加token验证的Authorization字段
+//     config.headers.Authorization=window.sessionStorage.getItem('token');
+//     return config;
+// })
 
 //get请求
 export const requestGet=(url,params={})=>{

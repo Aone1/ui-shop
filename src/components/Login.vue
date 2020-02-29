@@ -30,7 +30,7 @@ export default {
         return{
             loginForm:{
                 username:'admin',
-                password:'123456'
+                password:'123'
             },
             loginFormRules:{
                 username:[
@@ -39,7 +39,7 @@ export default {
                 ],
                 password:[
                     {required: true, message: '请输入密码', trigger: 'blur'},
-                    { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+                    { min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur' }
                 ]
             }
         }
@@ -48,15 +48,14 @@ export default {
         loginSubmit:function(){
             this.$refs.loginFormRef.validate(valid=>{
                 if(valid){
-                    this.requestPostLogin('/manager/login',this.loginForm).then(resp=>{
-                        let data=resp.data.data;
-                        let meta=resp.data.meta;
-                        if(meta.status==200){
+                    this.requestPostLogin('/manager/login/',this.loginForm).then(resp=>{
+                        let data=resp.data;
+                        if(data.success){
                             this.$message.success("登录成功");
                             // 1.将登录成功之后的token，保存到客户端的sessionStorage中
                             //     1.1 项目中除了登录之外的其他API接口，必须在登录之后才能访问
                             //     1.2 token只应当在当前网站打开期间生效，所以将token保存在sessionStorage中
-                            window.sessionStorage.setItem("token",data.token);
+                            window.sessionStorage.setItem("userInfo",data.data);
                             // 2.通过编程式导航跳转到后台主页，路由地址是 /home
                             this.$router.push("/home");
                         }else{
