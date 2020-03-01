@@ -89,8 +89,8 @@ export default {
   mounted() {},
   methods: {
     getRolesList() {
-        this.requestQuickGet('/manager/roles').then(resp=>{
-            if(resp.data.meta.status!=200){
+        this.requestQuickGet('/manager/role/roles').then(resp=>{
+            if(!resp.data.success){
                 return this.$message.error("查询角色列表失败！");
             }
             this.list=resp.data.data;
@@ -98,8 +98,8 @@ export default {
     },
     removeRightById(role,rightId){
         this.$confirm('确认删除吗？','提示',{}).then(()=>{
-            this.requestDelete(`/manager/roles/${role.id}/rights/${rightId}`).then(resp=>{
-                if(resp.data.meta.status!=200){
+            this.requestDelete(`/manager/role/delRight/${role.id}/${rightId}`).then(resp=>{
+                if(!resp.data.success){
                     return this.$message.error("删除权限失败！");
                 }
                 role.children=resp.data.data;
@@ -110,8 +110,8 @@ export default {
     },
     showSetRightDialog(role){
         this.roleId=role.id;
-        this.requestQuickGet('/manager/rights/tree').then(resp=>{
-            if(resp.data.meta.status!=200){
+        this.requestQuickGet('/manager/menu/rights/tree').then(resp=>{
+            if(!resp.data.success){
                 return this.$message.error("查询权限列表失败！");
             }
             this.rightsList=resp.data.data;
@@ -139,8 +139,8 @@ export default {
             ...this.$refs.treeRef.getHalfCheckedKeys()
             ];
         const idStr=keys.join(',');
-        this.requestPostForm(`/manager/roles/${this.roleId}/rights`,{rids:idStr}).then(resp=>{
-            if(resp.data.meta.status!=200){
+        this.requestPostForm('/manager/role/addRight',{roleId:this.roleId,psIds:idStr}).then(resp=>{
+            if(!resp.data.success){
                 return this.$message.error("分配权限失败！");
             }
             this.$message.success("分配权限失败！");
