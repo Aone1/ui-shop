@@ -7,15 +7,11 @@
 <script>
 export default {
     data(){
-        return{
-            //
-        }
+        return{}
     },
     created(){},
     mounted(){},
-    methods:{
-        //
-    }
+    methods:{}
 }
 </script>
 
