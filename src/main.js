@@ -10,6 +10,7 @@ import './plugins/element.js'
 import './assets/css/global.css'
 //导入字体图标
 import './assets/fonts/iconfont.css'
+import TreeTable from 'vue-table-with-tree-grid'
 
 import {requestGet} from './utils/api'
 import {requestQuickGet} from './utils/api'
@@ -26,6 +27,8 @@ Vue.prototype.requestPostForm = requestPostForm;
 Vue.prototype.requestPostLogin = requestPostLogin;
 Vue.prototype.requestPut = requestPut;
 Vue.prototype.requestDelete = requestDelete;
+
+Vue.component('tree-table',TreeTable)
 
 new Vue({
   el: '#app',
