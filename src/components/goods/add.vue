@@ -109,7 +109,7 @@ export default {
                     { required: true, message: "请输入商品数量", trigger: "blur" }
                 ],
                 goodsCategory:[
-                    { required: true, message: "请输入商品分类", trigger: "blur" }
+                    { required: true, message: "请选择商品分类", trigger: "blur" }
                 ]
             },
             caseOptions:[],
