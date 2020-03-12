@@ -10,7 +10,6 @@ export default {
         return{}
     },
     created(){},
-    mounted(){},
     methods:{}
 }
 </script>
