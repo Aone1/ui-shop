@@ -12,6 +12,21 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 //     return config;
 // })
 
+//导入NProgress包对应的js和css
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
+//在request拦截器中，展示进度条 NProgress.start()
+axios.interceptors.request.use(config=>{
+    NProgress.start();
+    return config;
+})
+//在response拦截器中，隐藏进度条 NProgress.done()
+axios.interceptors.response.use(config=>{
+    NProgress.done();
+    return config;
+})
+
 //get请求
 export const requestGet=(url,params={})=>{
   return new Promise((resolve, reject) => {
