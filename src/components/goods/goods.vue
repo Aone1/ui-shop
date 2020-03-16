@@ -71,12 +71,10 @@ export default {
         this.getList();
     },
     methods:{
-        getList(){
-            this.requestPostForm(`/manager/goods/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap).then(resp=>{
-                let data=resp.data;
-                this.list=data.rows;
-                this.total=data.total;
-            });
+        async getList(){
+            const {data:res}=await this.$http.post(`${this.baseUrl}/goods/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
+            this.list=res.rows;
+            this.total=res.total;
         },
         changePageSize(size){
             this.params.size=size;

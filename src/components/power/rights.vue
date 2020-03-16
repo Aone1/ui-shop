@@ -38,13 +38,12 @@ export default {
     },
     mounted(){},
     methods:{
-        getRightsList(){
-            this.requestQuickGet('/manager/menu/rights/list').then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("查询权限列表失败！");
-                }
-                this.list=resp.data.data;
-            })
+        async getRightsList(){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/menu/rights/list`);
+            if(!res.success){
+                return this.$message.error("查询权限列表失败！");
+            }
+            this.list=res.data;
         }
     }
 }

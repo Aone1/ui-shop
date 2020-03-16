@@ -67,14 +67,13 @@ export default {
       window.sessionStorage.clear();
       this.$router.push("/login");
     },
-    getMenuList(){
-        this.requestQuickGet('/manager/menu/').then(resp=>{
-            if(resp.data.success){
-                this.menuList=resp.data.data;
-            }else{
-                this.$message.error("查询菜单失败");
-            }
-        })
+    async getMenuList(){
+        const {data:res}=await this.$http.get(`${this.baseUrl}/menu/`);
+        if(res.success){
+            this.menuList=res.data;
+        }else{
+            this.$message.error("查询菜单失败");
+        }
     },
     toggleCollapse(){
         this.isCollapse=!this.isCollapse;

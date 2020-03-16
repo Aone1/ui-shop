@@ -221,17 +221,14 @@ export default {
   },
   mounted() {},
   methods: {
-    initRoles(){
-        this.requestQuickGet("/manager/role/").then(resp=>{
-            this.rolesList = resp.data;
-        });
+    async initRoles(){
+        const {data:res}=await this.$http.get(`${this.baseUrl}/role/`);
+        this.rolesList=res;
     },
-    getUserList() {
-      this.requestPostForm(`/manager/user/findPage?page=${this.params.page}&size=${this.params.size}`,this.searchMap).then(resp=>{
-          let data=resp.data;
-          this.list=data.rows;
-          this.total=data.total;
-      });
+    async getUserList() {
+      const {data:res}=await this.$http.post(`${this.baseUrl}/user/findPage?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
+      this.list=res.rows;
+      this.total=res.total;
     },
     changePageSize(size) {
       this.params.size = size;
@@ -241,76 +238,67 @@ export default {
       this.params.page = page;
       this.getUserList();
     },
-    userStateChanged(userInfo) {
-      this.requestPut('/manager/user/',userInfo).then(resp => {
-        if (!resp.data.success) {
+    async userStateChanged(userInfo) {
+      const {data:res}=await this.$http.put(`${this.baseUrl}/user/`,userInfo);
+      if(!res.success){
           userinfo.mgState = !userinfo.mgState;
           return this.$message.error("更新用户状态失败！");
-        }
-        this.$message.success("更新用户状态成功！");
-      });
+      }
+      this.$message.success("更新用户状态成功！");
     },
     addDialogClosed() {
       this.$refs.addFormRef.resetFields();
     },
     saveAddForm() {
-      this.$refs.addFormRef.validate(valid => {
+      this.$refs.addFormRef.validate(async valid => {
         if (valid) {
-          this.requestPostForm("/manager/user/", this.addForm).then(resp => {
-            if (!resp.data.success) {
+          const {data:res}=await this.$http.post(`${this.baseUrl}/user/`,this.addForm);
+          if(!res.success){
               return this.$message.error("添加失败！");
-            } else {
+          }else{
               this.$message.success("添加成功！");
               this.addFormVisible = false;
               this.getUserList();
-            }
-          });
+          }
         }
       });
     },
     editDialogClosed() {
       this.$refs.editFormRef.resetFields();
     },
-    openEdit(id) {
+    async openEdit(id) {
       this.editFormVisible = true;
-      this.requestQuickGet(`/manager/user/${id}`).then(resp => {
-        this.editForm = resp.data;
-      });
+      const {data:res}=await this.$http.get(`${this.baseUrl}/user/${id}`);
+      this.editForm=res;
     },
     saveEditForm() {
-      this.$refs.editFormRef.validate(valid => {
+      this.$refs.editFormRef.validate(async valid => {
         if (valid) {
-          this.requestPut('/manager/user/', {
-            mgId:this.editForm.mgId,
-            mgEmail: this.editForm.mgEmail,
-            mgMobile: this.editForm.mgMobile
-          }).then(resp => {
-            if (!resp.data.success) {
+          let data={mgId:this.editForm.mgId,mgEmail: this.editForm.mgEmail,mgMobile: this.editForm.mgMobile};
+          const {data:res}=await this.$http.put(`${this.baseUrl}/user/`,data);
+          if(!res.success){
               return this.$message.error("更新用户信息失败！");
-            } else {
+          }else{
               this.editFormVisible = false;
               this.getUserList();
               this.$message.success("修改成功！");
-            }
-          });
+          }
         }
       });
     },
-    del(id) {
-      this.$confirm("确认删除吗？", "提示", {})
-        .then(() => {
-          this.requestDelete(`/manager/user/${id}`).then(resp => {
-            if (!resp.data.success) {
-              return this.$message.error("删除用户信息失败！");
-            } else {
-              this.$message.success("删除用户信息成功！");
-              this.getUserList();
+    async del(id) {
+        //如果用户确认删除，返回字符串 confirm
+        //如果用户取消删除，返回字符串 cancel
+        const confirmResult=await this.$confirm("确认删除吗？","提示",{}).catch(err=>err);
+        if(confirmResult=="confirm"){
+            const {data:res}=await this.$http.delete(`${this.baseUrl}/user/${id}`);
+            if(!res.success){
+                return this.$message.error("删除用户信息失败！");
+            }else{
+                this.$message.success("删除用户信息成功！");
+                this.getUserList();
             }
-          });
-        })
-        .catch(() => {
-          //不能缺少catch方法，否则报错：Uncaught (in promise) cancel
-        });
+        }
     },
     setRoleDialogClosed() {
         this.userInfo={};
@@ -325,22 +313,19 @@ export default {
       }
       this.roleDialogVisible = true;
     },
-    saveRoleInfo(){
+    async saveRoleInfo(){
         if(!this.selectedRoleId){
             return this.$message.error("请选择要分配的角色！");
         }
 
-        this.requestPut('/manager/user/',{
-            mgId:this.userInfo.mgId,
-            roleId:this.selectedRoleId
-        }).then(resp=>{
-            if(!resp.data.success){
-                return this.$message.error("更新角色失败！");
-            }
-            this.$message.success("更新角色成功！");
-            this.getUserList();
-            this.roleDialogVisible=false;
-        });
+        let data={mgId:this.userInfo.mgId,roleId:this.selectedRoleId};
+        const {data:res}=await this.$http.put(`${this.baseUrl}/user/`,data);
+        if(!res.success){
+            return this.$message.error("更新角色失败！");
+        }
+        this.$message.success("更新角色成功！");
+        this.getUserList();
+        this.roleDialogVisible=false;
     }
   }
 };

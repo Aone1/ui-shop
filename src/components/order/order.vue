@@ -120,12 +120,10 @@ export default {
         this.getOrderList();
     },
     methods:{
-        getOrderList(){
-            this.requestPostForm(`/manager/order/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap).then(resp=>{
-                const data=resp.data;
-                this.list=data.rows;
-                this.total=data.total;
-            })
+        async getOrderList(){
+            const {data:res}=await this.$http.post(`${this.baseUrl}/order/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
+            this.list=res.rows;
+            this.total=res.total;
         },
         changePageSize(size){
             this.params.size = size;
@@ -148,13 +146,12 @@ export default {
                 }
             })
         },
-        showProgressBox(id){
-            this.requestQuickGet("/manager/progress/").then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("获取物流信息失败！");
-                }
-                this.progressInfo=resp.data.data;
-            })
+        async showProgressBox(id){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/progress/`);
+            if(!res.success){
+                return this.$message.error("获取物流信息失败！");
+            }
+            this.progressInfo=res.data;
             this.progressFormVisible=true;
         }
     }

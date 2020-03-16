@@ -20,23 +20,20 @@ import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 Vue.use(VueQuillEditor)
 
-import {requestGet} from './utils/api'
-import {requestQuickGet} from './utils/api'
-import {requestPostForm} from './utils/api'
-import {requestPostLogin} from './utils/api'
-import {requestPut} from './utils/api'
-import {requestDelete} from './utils/api'
-
 Vue.config.productionTip = false
 
-Vue.prototype.requestGet = requestGet;
-Vue.prototype.requestQuickGet = requestQuickGet;
-Vue.prototype.requestPostForm = requestPostForm;
-Vue.prototype.requestPostLogin = requestPostLogin;
-Vue.prototype.requestPut = requestPut;
-Vue.prototype.requestDelete = requestDelete;
-
 Vue.component('tree-table',TreeTable)
+
+//配置axios
+import axios from 'axios'
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+Vue.prototype.$http=axios
+
+//配置baseUrl
+Vue.prototype.baseUrl=process.env.API_ROOT;
+
+import qs from 'qs'
+Vue.prototype.$qs=qs
 
 Vue.filter('dateFormat',function(originVal){
     const dt=new Date(originVal);

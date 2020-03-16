@@ -129,20 +129,17 @@ export default {
         this.getCates();
     },
     methods:{
-        initParentCate(){
-            this.requestQuickGet('/manager/cate/getParentCase').then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("获取父级分类失败！");
-                }
-                this.caseOptions=resp.data.data;
-            })
+        async initParentCate(){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/getParentCase`);
+            if(!res.success){
+                return this.$message.error("获取父级分类失败！");
+            }
+            this.caseOptions=res.data;
         },
-        getCates(){
-            this.requestQuickGet(`/manager/cate/findPage?page=${this.params.page}&size=${this.params.size}`).then(resp=>{
-                let data=resp.data;
-                this.list=data.rows;
-                this.total=data.total;
-            })
+        async getCates(){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/findPage?page=${this.params.page}&size=${this.params.size}`);
+            this.list=res.rows;
+            this.total=res.total;
         },
         changePageSize(size) {
             this.params.size = size;
@@ -162,16 +159,15 @@ export default {
             }
         },
         saveAddCaseForm(){
-            this.$refs.addCaseFormRef.validate(valid=>{
+            this.$refs.addCaseFormRef.validate(async valid=>{
                 if(valid){
-                    this.requestPostForm("/manager/cate/",this.addCaseForm).then(resp=>{
-                        if(!resp.data.success){
-                            return this.$message.error("添加失败");
-                        }
-                        this.$message.success("添加成功");
-                        this.getCates();
-                        this.addCaseFormVisible=false;
-                    })
+                    const {data:res}=await this.$http.post(`${this.baseUrl}/cate/`,this.addCaseForm);
+                    if(!res.success){
+                        return this.$message.error("添加失败");
+                    }
+                    this.$message.success("添加成功");
+                    this.getCates();
+                    this.addCaseFormVisible=false;
                 }
             });
         },
@@ -185,10 +181,9 @@ export default {
             this.addCaseFormVisible=true;
         },
         //修改
-        openEditForm(id){
-            this.requestQuickGet(`/manager/cate/${id}`).then(resp=>{
-                this.editCaseForm=resp.data;
-            })
+        async openEditForm(id){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/${id}`);
+            this.editCaseForm=res;
             this.editCaseFormVisible=true;
         },
         editDialogClosed() {
@@ -196,32 +191,28 @@ export default {
             this.editCaseForm={};
         },
         saveEditCaseForm(){
-            this.$refs.editCaseFormRef.validate(valid=>{
+            this.$refs.editCaseFormRef.validate(async valid=>{
                 if(valid){
-                    this.requestPut("/manager/cate/",this.editCaseForm).then(resp=>{
-                        if(!resp.data.success){
-                            return this.$message.error("修改失败");
-                        }
-                        this.$message.success("修改成功");
-                        this.getCates();
-                        this.editCaseFormVisible=false;
-                    })
+                    const {data:res}=await this.$http.put(`${this.baseUrl}/cate/`,this.editCaseForm);
+                    if(!res.success){
+                        return this.$message.error("修改失败");
+                    }
+                    this.$message.success("修改成功");
+                    this.getCates();
+                    this.editCaseFormVisible=false;
                 }
             });
         },
-        del(id){
-            this.$confirm("确认删除吗？","提示",{}).then(()=>{
-                this.requestDelete(`/manager/cate/${id}`).then(resp=>{
-                    if(!resp.data.success){
-                        return this.$message.error("删除失败！");
-                    }
-                    this.$message.success("删除成功");
-                    this.getCates();
-                });
-            })
-            .catch(()=>{
-                //不能缺少catch方法，否则报错：Uncaught (in promise) cancel
-            })
+        async del(id){
+            const confirmResult=await this.$confirm("确认删除吗？","提示",{}).catch(err=>err);
+            if(confirmResult=="confirm"){
+                const {data:res}=await this.$http.delete(`${this.baseUrl}/cate/${id}`);
+                if(!res.success){
+                    return this.$message.error("删除失败！");
+                }
+                this.$message.success("删除成功");
+                this.getCates();
+            }
         }
     }
 }

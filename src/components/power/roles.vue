@@ -88,34 +88,30 @@ export default {
   },
   mounted() {},
   methods: {
-    getRolesList() {
-        this.requestQuickGet('/manager/role/roles').then(resp=>{
-            if(!resp.data.success){
-                return this.$message.error("查询角色列表失败！");
+    async getRolesList() {
+        const {data:res}=await this.$http.get(`${this.baseUrl}/role/roles`);
+        if(!res.success){
+            return this.$message.error("查询角色列表失败！");
+        }
+        this.list=res.data;
+    },
+    async removeRightById(role,rightId){
+        const confirmResult=await this.$confirm('确认删除吗？','提示',{}).catch(err=>err);
+        if(confirmResult=="confirm"){
+            const {data:res}=await this.$http.delete(`${this.baseUrl}/role/delRight/${role.id}/${rightId}`);
+            if(!res.success){
+                return this.$message.error("删除权限失败！");
             }
-            this.list=resp.data.data;
-        })
+            role.children=res.data;
+        }
     },
-    removeRightById(role,rightId){
-        this.$confirm('确认删除吗？','提示',{}).then(()=>{
-            this.requestDelete(`/manager/role/delRight/${role.id}/${rightId}`).then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("删除权限失败！");
-                }
-                role.children=resp.data.data;
-            })
-        }).catch(()=>{
-            //不能缺少catch方法，否则报错：Uncaught (in promise) cancel
-        })
-    },
-    showSetRightDialog(role){
+    async showSetRightDialog(role){
         this.roleId=role.id;
-        this.requestQuickGet('/manager/menu/rights/tree').then(resp=>{
-            if(!resp.data.success){
-                return this.$message.error("查询权限列表失败！");
-            }
-            this.rightsList=resp.data.data;
-        })
+        const {data:res}=await this.$http.get(`${this.baseUrl}/menu/rights/tree`);
+        if(!res.success){
+            return this.$message.error("查询权限列表失败！");
+        }
+        this.rightsList=res.data;
 
         //递归获取三级节点的ID
         this.getLeafKeys(role,this.defKeys);
@@ -133,20 +129,19 @@ export default {
     setRightDialogClosed(){
         this.defKeys=[];
     },
-    saveRight(){
+    async saveRight(){
         const keys=[
             ...this.$refs.treeRef.getCheckedKeys(),
             ...this.$refs.treeRef.getHalfCheckedKeys()
             ];
         const idStr=keys.join(',');
-        this.requestPostForm('/manager/role/addRight',{roleId:this.roleId,psIds:idStr}).then(resp=>{
-            if(!resp.data.success){
-                return this.$message.error("分配权限失败！");
-            }
-            this.$message.success("分配权限失败！");
-            this.getRolesList();
-            this.setRightDialogVisible=false;
-        })
+        const {data:res}=await this.$http.post(`${this.baseUrl}/role/addRight`,{roleId:this.roleId,psIds:idStr});
+        if(!res.success){
+            return this.$message.error("分配权限失败！");
+        }
+        this.$message.success("分配权限失败！");
+        this.getRolesList();
+        this.setRightDialogVisible=false;
     },
     edit(id){
         alert(id);

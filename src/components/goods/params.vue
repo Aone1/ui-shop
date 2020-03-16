@@ -144,13 +144,12 @@ export default {
         this.initCate();
     },
     methods:{
-        initCate(){
-            this.requestQuickGet('/manager/cate/allNode').then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("获取分类级联列表失败！");
-                }
-                this.caseOptions=resp.data.data;
-            })
+        async initCate(){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/allNode`);
+            if(!res.success){
+                return this.$message.error("获取分类级联列表失败！");
+            }
+            this.caseOptions=res.data;
         },
         caseChanged(){
             this.queryParams();
@@ -158,7 +157,7 @@ export default {
         tabChanged(){
             this.queryParams();
         },
-        queryParams(){
+        async queryParams(){
             if(this.selectedKeys.length!=3){
                 this.selectedKeys=[];
                 this.manyTableData=[];
@@ -167,22 +166,21 @@ export default {
             }
 
             if(this.cateId!=null){
-                this.requestQuickGet(`/manager/attr/findAttr/${this.cateId}?attrSel=${this.activeName}`).then(resp=>{
-                    if(!resp.data.success){
-                        return this.$message.error("查询数据失败！");
-                    }
-                    //将attrVals按照逗号拆分成数组
-                    resp.data.data.forEach(item=>{
-                        item.attrVals=item.attrVals?item.attrVals.split(','):[];
-                        item.inputVisible=false;
-                        item.inputValue='';
-                    })
-                    if(this.activeName=='many'){
-                        this.manyTableData=resp.data.data;
-                    }else{
-                        this.onlyTableData=resp.data.data;
-                    }
+                const {data:res}=await this.$http.get(`${this.baseUrl}/attr/findAttr/${this.cateId}?attrSel=${this.activeName}`);
+                if(!res.success){
+                    return this.$message.error("查询数据失败！");
+                }
+                //将attrVals按照逗号拆分成数组
+                res.data.forEach(item=>{
+                    item.attrVals=item.attrVals?item.attrVals.split(','):[];
+                    item.inputVisible=false;
+                    item.inputValue='';
                 })
+                if(this.activeName=='many'){
+                    this.manyTableData=res.data;
+                }else{
+                    this.onlyTableData=res.data;
+                }
             }
         },
         addDialogClosed() {
@@ -190,27 +188,25 @@ export default {
             this.addForm={};
         },
         saveAddForm(){
-            this.$refs.addFormRef.validate(valid=>{
+            this.$refs.addFormRef.validate(async valid=>{
                 if(valid){
                     this.addForm.catId=this.selectedKeys[2];
                     this.addForm.attrSel=this.activeName;
                     this.addForm.attrWrite=this.activeName=="many"?"list":"manual";
                     this.addForm.attrVals="";
-                    this.requestPostForm("/manager/attr/",this.addForm).then(resp=>{
-                        if(!resp.data.success){
-                            return this.$message.error("添加失败");
-                        }
-                        this.$message.success("添加成功");
-                        this.addFormVisible=false;
-                        this.queryParams();
-                    })
+                    const {data:res}=await this.$http.post(`${this.baseUrl}/attr/`,this.addForm);
+                    if(!res.success){
+                        return this.$message.error("添加失败");
+                    }
+                    this.$message.success("添加成功");
+                    this.addFormVisible=false;
+                    this.queryParams();
                 }
             });
         },
-        openEditForm(id){
-            this.requestQuickGet(`/manager/attr/${id}`).then(resp=>{
-                this.editForm=resp.data;
-            })
+        async openEditForm(id){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/attr/${id}`);
+            this.editForm=res;
             this.editFormVisible=true;
         },
         editDialogClosed() {
@@ -218,29 +214,28 @@ export default {
             this.editForm={};
         },
         saveEditForm(){
-            this.$refs.editFormRef.validate(valid=>{
+            this.$refs.editFormRef.validate(async valid=>{
                 if(valid){
-                    this.requestPut("/manager/attr/",this.editForm).then(resp=>{
-                        if(!resp.data.success){
-                            return this.$message.error("修改失败");
-                        }
-                        this.$message.success("修改成功");
-                        this.editFormVisible=false;
-                        this.queryParams();
-                    })
+                    const {data:res}=await this.$http.put(`${this.baseUrl}/attr/`,this.editForm);
+                    if(!res.success){
+                        return this.$message.error("修改失败");
+                    }
+                    this.$message.success("修改成功");
+                    this.editFormVisible=false;
+                    this.queryParams();
                 }
             });
         },
-        del(id){
-            this.$confirm("确认删除吗？","提示",{}).then(()=>{
-                this.requestDelete(`/manager/attr/${id}`).then(resp=>{
-                    if(!resp.data.success){
-                        return this.$message.error("删除失败");
-                    }
-                    this.$message.success("删除成功");
-                    this.queryParams();
-                })
-            }).catch(err=>err)
+        async del(id){
+            const confirmResult=await this.$confirm("确认删除吗？","提示",{}).catch(err=>err);
+            if(confirmResult=="confirm"){
+                const {data:res}=await this.$http.delete(`${this.baseUrl}/attr/${id}`);
+                if(!res.success){
+                    return this.$message.error("删除失败");
+                }
+                this.$message.success("删除成功");
+                this.queryParams();
+            }
         },
         //点击按钮，展示输入文本框
         showInput(row){
@@ -268,16 +263,12 @@ export default {
             row.attrVals.splice(i,1);
             this.updateAttrVals(row);
         },
-        updateAttrVals(row){
-            this.requestPut("/manager/attr/",{
-                "attrId":row.attrId,
-                "attrVals":row.attrVals.join(',')
-            }).then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("更新失败");
-                }
-                this.$message.success("更新成功");
-            })
+        async updateAttrVals(row){
+            const {data:res}=await this.$http.put(`${this.baseUrl}/attr/`,{"attrId":row.attrId,"attrVals":row.attrVals.join(',')});
+            if(!res.success){
+                return this.$message.error("更新失败");
+            }
+            this.$message.success("更新成功");
         }
     },
     //计算属性

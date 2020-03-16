@@ -58,7 +58,7 @@
                 </el-tab-pane>
                 <el-tab-pane label="商品图片" name="3">
                     <el-upload
-                        action="/manager/file/upload?folder=goods"
+                        :action=uploadAddPath
                         :on-preview="handlePreview"
                         :on-remove="handleRemove" :on-success="handleSuccess"
                         :file-list="fileList"
@@ -87,6 +87,7 @@
 export default {
     data(){
         return{
+            uploadAddPath:this.baseUrl+"/file/upload?folder=goods",
             activeIndex:'0',
             addForm:{
                 goodsName:'',
@@ -128,15 +129,14 @@ export default {
         this.initCate();
     },
     methods:{
-        initCate(){
-            this.requestQuickGet('/manager/cate/allNode').then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("获取分类级联列表失败！");
-                }
-                this.caseOptions=resp.data.data;
-            })
+        async initCate(){
+            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/allNode`);
+            if(!res.success){
+                return this.$message.error("获取分类级联列表失败！");
+            }
+            this.caseOptions=res.data;
         },
-        caseChanged(){
+        async caseChanged(){
             if(this.addForm.goodsCategory.length!=3){
                 this.addForm.goodsCategory=[];
                 return;
@@ -148,24 +148,22 @@ export default {
             this.addForm.catThreeId=this.addForm.goodsCategory[2];
 
             //参数
-            this.requestQuickGet(`/manager/attr/findAttr/${this.cateId}?attrSel=many`).then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("获取动态参数列表失败");
-                }
-                resp.data.data.forEach(item=>{
-                    item.checkedAttrVals=item.attrVals?item.attrVals.split(','):[];
-                    item.attrVals=item.attrVals?item.attrVals.split(','):[];
-                })
-                this.manyData=resp.data.data;
+            const {data:res1}=await this.$http.get(`${this.baseUrl}/attr/findAttr/${this.cateId}?attrSel=many`);
+            if(!res1.success){
+                return this.$message.error("获取动态参数列表失败");
+            }
+            res1.data.forEach(item=>{
+                item.checkedAttrVals=item.attrVals?item.attrVals.split(','):[];
+                item.attrVals=item.attrVals?item.attrVals.split(','):[];
             })
+            this.manyData=res1.data;
 
             //属性
-            this.requestQuickGet(`/manager/attr/findAttr/${this.cateId}?attrSel=only`).then(resp=>{
-                if(!resp.data.success){
-                    return this.$message.error("获取静态属性列表失败");
-                }
-                this.onlyData=resp.data.data;
-            })
+            const {data:res2}=await this.$http.get(`${this.baseUrl}/attr/findAttr/${this.cateId}?attrSel=only`);
+            if(!res2.success){
+                return this.$message.error("获取静态属性列表失败");
+            }
+            this.onlyData=res2.data;
         },
         beforeTabLeave(activeName,oldActiveName){
             if(oldActiveName=='0'&&this.addForm.goodsCategory.length!=3){
@@ -187,9 +185,9 @@ export default {
             const picInfo={picsBig:response,picsMid:response,picsSma:response};
             this.pics.push(picInfo);
         },
-        handleRemove(file){
+        async handleRemove(file){
             //后台删除
-            this.requestDelete(`/manager/file/del?path=${file.response}`);
+            await this.$http.delete(`${this.baseUrl}/file/del?path=${file.response}`);
             //从pics数组中找到这个图片对应的索引值
             const i=this.pics.findIndex(x=>x.picsBig===file.response);
             //从pics数组中移除
@@ -200,7 +198,7 @@ export default {
             this.picVisible=true;
         },
         add(){
-            this.$refs.addFormRef.validate(valid=>{
+            this.$refs.addFormRef.validate(async valid=>{
                 if(!valid){
                     return this.$message.error("请填写必要的表单项！");
                 }
@@ -223,17 +221,12 @@ export default {
                 })
 
                 //执行添加操作
-                this.requestPostForm("/manager/goods/add",{
-                    goods:this.addForm,
-                    attrs:this.attrs,
-                    pics:this.pics
-                }).then(resp=>{
-                    if(!resp.data.success){
-                        return this.$message.error(resp.data.message);
-                    }
-                    this.$message.success("添加成功");
-                    this.$router.push('/goods');
-                })
+                const {data:res}=await this.$http.post(`${this.baseUrl}/goods/add`,{goods:this.addForm,attrs:this.attrs,pics:this.pics});
+                if(!res.success){
+                    return this.$message.error(res.message);
+                }
+                this.$message.success("添加成功");
+                this.$router.push('/goods');
             })
         }
     },
