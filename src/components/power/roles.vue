@@ -89,7 +89,7 @@ export default {
   mounted() {},
   methods: {
     async getRolesList() {
-        const {data:res}=await this.$http.get(`${this.baseUrl}/role/roles`);
+        const {data:res}=await this.$http.get(`/api/role/roles`);
         if(!res.success){
             return this.$message.error("查询角色列表失败！");
         }
@@ -98,7 +98,7 @@ export default {
     async removeRightById(role,rightId){
         const confirmResult=await this.$confirm('确认删除吗？','提示',{}).catch(err=>err);
         if(confirmResult=="confirm"){
-            const {data:res}=await this.$http.delete(`${this.baseUrl}/role/delRight/${role.id}/${rightId}`);
+            const {data:res}=await this.$http.delete(`/api/role/delRight/${role.id}/${rightId}`);
             if(!res.success){
                 return this.$message.error("删除权限失败！");
             }
@@ -107,7 +107,7 @@ export default {
     },
     async showSetRightDialog(role){
         this.roleId=role.id;
-        const {data:res}=await this.$http.get(`${this.baseUrl}/menu/rights/tree`);
+        const {data:res}=await this.$http.get(`/api/menu/rights/tree`);
         if(!res.success){
             return this.$message.error("查询权限列表失败！");
         }
@@ -135,7 +135,7 @@ export default {
             ...this.$refs.treeRef.getHalfCheckedKeys()
             ];
         const idStr=keys.join(',');
-        const {data:res}=await this.$http.post(`${this.baseUrl}/role/addRight`,{roleId:this.roleId,psIds:idStr});
+        const {data:res}=await this.$http.post(`/api/role/addRight`,{roleId:this.roleId,psIds:idStr});
         if(!res.success){
             return this.$message.error("分配权限失败！");
         }

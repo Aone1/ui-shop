@@ -222,11 +222,11 @@ export default {
   mounted() {},
   methods: {
     async initRoles(){
-        const {data:res}=await this.$http.get(`${this.baseUrl}/role/`);
+        const {data:res}=await this.$http.get(`/api/role/`);
         this.rolesList=res;
     },
     async getUserList() {
-      const {data:res}=await this.$http.post(`${this.baseUrl}/user/findPage?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
+      const {data:res}=await this.$http.post(`/api/user/findPage?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
       this.list=res.rows;
       this.total=res.total;
     },
@@ -239,7 +239,7 @@ export default {
       this.getUserList();
     },
     async userStateChanged(userInfo) {
-      const {data:res}=await this.$http.put(`${this.baseUrl}/user/`,userInfo);
+      const {data:res}=await this.$http.put(`/api/user/`,userInfo);
       if(!res.success){
           userinfo.mgState = !userinfo.mgState;
           return this.$message.error("更新用户状态失败！");
@@ -252,7 +252,7 @@ export default {
     saveAddForm() {
       this.$refs.addFormRef.validate(async valid => {
         if (valid) {
-          const {data:res}=await this.$http.post(`${this.baseUrl}/user/`,this.addForm);
+          const {data:res}=await this.$http.post(`/api/user/`,this.addForm);
           if(!res.success){
               return this.$message.error("添加失败！");
           }else{
@@ -268,14 +268,14 @@ export default {
     },
     async openEdit(id) {
       this.editFormVisible = true;
-      const {data:res}=await this.$http.get(`${this.baseUrl}/user/${id}`);
+      const {data:res}=await this.$http.get(`/api/user/${id}`);
       this.editForm=res;
     },
     saveEditForm() {
       this.$refs.editFormRef.validate(async valid => {
         if (valid) {
           let data={mgId:this.editForm.mgId,mgEmail: this.editForm.mgEmail,mgMobile: this.editForm.mgMobile};
-          const {data:res}=await this.$http.put(`${this.baseUrl}/user/`,data);
+          const {data:res}=await this.$http.put(`/api/user/`,data);
           if(!res.success){
               return this.$message.error("更新用户信息失败！");
           }else{
@@ -291,7 +291,7 @@ export default {
         //如果用户取消删除，返回字符串 cancel
         const confirmResult=await this.$confirm("确认删除吗？","提示",{}).catch(err=>err);
         if(confirmResult=="confirm"){
-            const {data:res}=await this.$http.delete(`${this.baseUrl}/user/${id}`);
+            const {data:res}=await this.$http.delete(`/api/user/${id}`);
             if(!res.success){
                 return this.$message.error("删除用户信息失败！");
             }else{
@@ -319,7 +319,7 @@ export default {
         }
 
         let data={mgId:this.userInfo.mgId,roleId:this.selectedRoleId};
-        const {data:res}=await this.$http.put(`${this.baseUrl}/user/`,data);
+        const {data:res}=await this.$http.put(`/api/user/`,data);
         if(!res.success){
             return this.$message.error("更新角色失败！");
         }

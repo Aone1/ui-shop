@@ -130,7 +130,7 @@ export default {
     },
     methods:{
         async initCate(){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/allNode`);
+            const {data:res}=await this.$http.get(`/api/cate/allNode`);
             if(!res.success){
                 return this.$message.error("获取分类级联列表失败！");
             }
@@ -148,7 +148,7 @@ export default {
             this.addForm.catThreeId=this.addForm.goodsCategory[2];
 
             //参数
-            const {data:res1}=await this.$http.get(`${this.baseUrl}/attr/findAttr/${this.cateId}?attrSel=many`);
+            const {data:res1}=await this.$http.get(`/api/attr/findAttr/${this.cateId}?attrSel=many`);
             if(!res1.success){
                 return this.$message.error("获取动态参数列表失败");
             }
@@ -159,7 +159,7 @@ export default {
             this.manyData=res1.data;
 
             //属性
-            const {data:res2}=await this.$http.get(`${this.baseUrl}/attr/findAttr/${this.cateId}?attrSel=only`);
+            const {data:res2}=await this.$http.get(`/api/attr/findAttr/${this.cateId}?attrSel=only`);
             if(!res2.success){
                 return this.$message.error("获取静态属性列表失败");
             }
@@ -187,7 +187,7 @@ export default {
         },
         async handleRemove(file){
             //后台删除
-            await this.$http.delete(`${this.baseUrl}/file/del?path=${file.response}`);
+            await this.$http.delete(`/api/file/del?path=${file.response}`);
             //从pics数组中找到这个图片对应的索引值
             const i=this.pics.findIndex(x=>x.picsBig===file.response);
             //从pics数组中移除
@@ -221,7 +221,7 @@ export default {
                 })
 
                 //执行添加操作
-                const {data:res}=await this.$http.post(`${this.baseUrl}/goods/add`,{goods:this.addForm,attrs:this.attrs,pics:this.pics});
+                const {data:res}=await this.$http.post(`/api/goods/add`,{goods:this.addForm,attrs:this.attrs,pics:this.pics});
                 if(!res.success){
                     return this.$message.error(res.message);
                 }

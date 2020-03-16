@@ -68,7 +68,7 @@ export default {
       this.$router.push("/login");
     },
     async getMenuList(){
-        const {data:res}=await this.$http.get(`${this.baseUrl}/menu/`);
+        const {data:res}=await this.$http.get(`/api/menu/`);
         if(res.success){
             this.menuList=res.data;
         }else{

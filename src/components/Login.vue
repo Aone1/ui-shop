@@ -48,7 +48,7 @@ export default {
         loginSubmit:function(){
             this.$refs.loginFormRef.validate(async valid=>{
                 if(valid){
-                    const {data:res}=await this.$http.post(`${this.baseUrl}/login/`,this.$qs.stringify(this.loginForm));
+                    const {data:res}=await this.$http.post(`/api/login/`,this.$qs.stringify(this.loginForm));
                     if(res.success){
                         this.$message.success("登录成功");
                         // 1.将登录成功之后的token，保存到客户端的sessionStorage中

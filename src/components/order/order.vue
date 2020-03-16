@@ -121,7 +121,7 @@ export default {
     },
     methods:{
         async getOrderList(){
-            const {data:res}=await this.$http.post(`${this.baseUrl}/order/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
+            const {data:res}=await this.$http.post(`/api/order/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
             this.list=res.rows;
             this.total=res.total;
         },
@@ -147,7 +147,7 @@ export default {
             })
         },
         async showProgressBox(id){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/progress/`);
+            const {data:res}=await this.$http.get(`/api/progress/`);
             if(!res.success){
                 return this.$message.error("获取物流信息失败！");
             }

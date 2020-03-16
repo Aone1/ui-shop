@@ -72,7 +72,7 @@ export default {
     },
     methods:{
         async getList(){
-            const {data:res}=await this.$http.post(`${this.baseUrl}/goods/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
+            const {data:res}=await this.$http.post(`/api/goods/findPageList?page=${this.params.page}&size=${this.params.size}`,this.searchMap);
             this.list=res.rows;
             this.total=res.total;
         },

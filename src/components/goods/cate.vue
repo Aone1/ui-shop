@@ -130,14 +130,14 @@ export default {
     },
     methods:{
         async initParentCate(){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/getParentCase`);
+            const {data:res}=await this.$http.get(`/api/cate/getParentCase`);
             if(!res.success){
                 return this.$message.error("获取父级分类失败！");
             }
             this.caseOptions=res.data;
         },
         async getCates(){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/findPage?page=${this.params.page}&size=${this.params.size}`);
+            const {data:res}=await this.$http.get(`/api/cate/findPage?page=${this.params.page}&size=${this.params.size}`);
             this.list=res.rows;
             this.total=res.total;
         },
@@ -161,7 +161,7 @@ export default {
         saveAddCaseForm(){
             this.$refs.addCaseFormRef.validate(async valid=>{
                 if(valid){
-                    const {data:res}=await this.$http.post(`${this.baseUrl}/cate/`,this.addCaseForm);
+                    const {data:res}=await this.$http.post(`/api/cate/`,this.addCaseForm);
                     if(!res.success){
                         return this.$message.error("添加失败");
                     }
@@ -182,7 +182,7 @@ export default {
         },
         //修改
         async openEditForm(id){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/${id}`);
+            const {data:res}=await this.$http.get(`/api/cate/${id}`);
             this.editCaseForm=res;
             this.editCaseFormVisible=true;
         },
@@ -193,7 +193,7 @@ export default {
         saveEditCaseForm(){
             this.$refs.editCaseFormRef.validate(async valid=>{
                 if(valid){
-                    const {data:res}=await this.$http.put(`${this.baseUrl}/cate/`,this.editCaseForm);
+                    const {data:res}=await this.$http.put(`/api/cate/`,this.editCaseForm);
                     if(!res.success){
                         return this.$message.error("修改失败");
                     }
@@ -206,7 +206,7 @@ export default {
         async del(id){
             const confirmResult=await this.$confirm("确认删除吗？","提示",{}).catch(err=>err);
             if(confirmResult=="confirm"){
-                const {data:res}=await this.$http.delete(`${this.baseUrl}/cate/${id}`);
+                const {data:res}=await this.$http.delete(`/api/cate/${id}`);
                 if(!res.success){
                     return this.$message.error("删除失败！");
                 }

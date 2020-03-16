@@ -29,9 +29,6 @@ import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 Vue.prototype.$http=axios
 
-//配置baseUrl
-Vue.prototype.baseUrl=process.env.API_ROOT;
-
 import qs from 'qs'
 Vue.prototype.$qs=qs
 

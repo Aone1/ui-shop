@@ -39,7 +39,7 @@ export default {
     mounted(){},
     methods:{
         async getRightsList(){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/menu/rights/list`);
+            const {data:res}=await this.$http.get(`/api/menu/rights/list`);
             if(!res.success){
                 return this.$message.error("查询权限列表失败！");
             }

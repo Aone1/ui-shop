@@ -28,7 +28,7 @@ export default {
     created(){},
     //此时，页面上的元素已经被渲染完毕了
     async mounted(){
-        const {data:res}=await this.$http.get(`${this.baseUrl}/report/report1`)
+        const {data:res}=await this.$http.get(`/api/report/report1`)
         if(!res.success){
             return this.$message.error("统计report1失败");
         }

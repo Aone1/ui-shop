@@ -145,7 +145,7 @@ export default {
     },
     methods:{
         async initCate(){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/cate/allNode`);
+            const {data:res}=await this.$http.get(`/api/cate/allNode`);
             if(!res.success){
                 return this.$message.error("获取分类级联列表失败！");
             }
@@ -166,7 +166,7 @@ export default {
             }
 
             if(this.cateId!=null){
-                const {data:res}=await this.$http.get(`${this.baseUrl}/attr/findAttr/${this.cateId}?attrSel=${this.activeName}`);
+                const {data:res}=await this.$http.get(`/api/attr/findAttr/${this.cateId}?attrSel=${this.activeName}`);
                 if(!res.success){
                     return this.$message.error("查询数据失败！");
                 }
@@ -194,7 +194,7 @@ export default {
                     this.addForm.attrSel=this.activeName;
                     this.addForm.attrWrite=this.activeName=="many"?"list":"manual";
                     this.addForm.attrVals="";
-                    const {data:res}=await this.$http.post(`${this.baseUrl}/attr/`,this.addForm);
+                    const {data:res}=await this.$http.post(`/api/attr/`,this.addForm);
                     if(!res.success){
                         return this.$message.error("添加失败");
                     }
@@ -205,7 +205,7 @@ export default {
             });
         },
         async openEditForm(id){
-            const {data:res}=await this.$http.get(`${this.baseUrl}/attr/${id}`);
+            const {data:res}=await this.$http.get(`/api/attr/${id}`);
             this.editForm=res;
             this.editFormVisible=true;
         },
@@ -216,7 +216,7 @@ export default {
         saveEditForm(){
             this.$refs.editFormRef.validate(async valid=>{
                 if(valid){
-                    const {data:res}=await this.$http.put(`${this.baseUrl}/attr/`,this.editForm);
+                    const {data:res}=await this.$http.put(`/api/attr/`,this.editForm);
                     if(!res.success){
                         return this.$message.error("修改失败");
                     }
@@ -229,7 +229,7 @@ export default {
         async del(id){
             const confirmResult=await this.$confirm("确认删除吗？","提示",{}).catch(err=>err);
             if(confirmResult=="confirm"){
-                const {data:res}=await this.$http.delete(`${this.baseUrl}/attr/${id}`);
+                const {data:res}=await this.$http.delete(`/api/attr/${id}`);
                 if(!res.success){
                     return this.$message.error("删除失败");
                 }
@@ -264,7 +264,7 @@ export default {
             this.updateAttrVals(row);
         },
         async updateAttrVals(row){
-            const {data:res}=await this.$http.put(`${this.baseUrl}/attr/`,{"attrId":row.attrId,"attrVals":row.attrVals.join(',')});
+            const {data:res}=await this.$http.put(`/api/attr/`,{"attrId":row.attrId,"attrVals":row.attrVals.join(',')});
             if(!res.success){
                 return this.$message.error("更新失败");
             }
