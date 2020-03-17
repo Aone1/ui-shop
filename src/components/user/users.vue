@@ -272,7 +272,7 @@ export default {
       this.editForm=res;
     },
     saveEditForm() {
-      this.$refs.editFormRef.validate(async valid => {
+      this.$refs.editFormRef.validate(async valid=>{
         if (valid) {
           let data={mgId:this.editForm.mgId,mgEmail: this.editForm.mgEmail,mgMobile: this.editForm.mgMobile};
           const {data:res}=await this.$http.put(`/api/user/`,data);
